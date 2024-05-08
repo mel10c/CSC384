@@ -1,0 +1,486 @@
+\documentclass[7pt,landscape]{article}
+\usepackage{amssymb,amsmath,amsthm,amsfonts}
+\usepackage{multicol,multirow}
+\usepackage{calc}
+\usepackage{ifthen}
+\usepackage[landscape]{geometry}
+\usepackage[colorlinks=true,citecolor=blue,linkcolor=blue]{hyperref}
+\usepackage{setspace}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\graphicspath{ {./images/} }
+% \usepackage{tabularray}
+\usepackage{wrapfig}
+
+
+
+\setstretch{1.1}
+\ifthenelse{\lengthtest { \paperwidth = 11in}}
+    { \geometry{top=.2in,left=.2in,right=.2in,bottom=.2in} }
+	{\ifthenelse{ \lengthtest{ \paperwidth = 297mm}}
+		{\geometry{top=1cm,left=1cm,right=1cm,bottom=1cm} }
+		{\geometry{top=1cm,left=1cm,right=1cm,bottom=1cm} }
+	}
+\pagestyle{empty}
+\makeatletter
+\renewcommand{\section}{\@startsection{section}{1}{0mm}%
+                                {-1ex plus -.5ex minus -.2ex}%
+                                {0.5ex plus .2ex}%x
+                                {\normalfont\large\bfseries}}
+\renewcommand{\subsection}{\@startsection{subsection}{2}{0mm}%
+                                {-1explus -.5ex minus -.2ex}%
+                                {0.5ex plus .2ex}%
+                                {\normalfont\normalsize\bfseries}}
+\renewcommand{\subsubsection}{\@startsection{subsubsection}{3}{0mm}%
+                                {-1ex plus -.5ex minus -.2ex}%
+                                {1ex plus .2ex}%
+                                {\normalfont\small\bfseries}}
+\makeatother
+\setcounter{secnumdepth}{0}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt plus 0.5ex}
+% -----------------------------------------------------------------------
+
+\title{Quick Guide to LaTeX}
+
+\begin{document}
+
+\raggedright
+\footnotesize
+
+\begin{multicols}{2}
+\setlength{\premulticols}{1pt}
+\setlength{\postmulticols}{1pt}
+\setlength{\multicolsep}{1pt}
+\setlength{\columnsep}{2pt}
+
+\section{Search Problem}
+
+\begin{center}
+    \begin{tabular}{|l|l|l|l|l|l|l|}
+        \hline
+        Property & BFS & UCS & DFS & DLS & GFS & A* \\ \hline
+        \texttt{Completeness} & \textbf{YES}, $b$ finite & \textbf{YES*} & NO & NO & NO & \textbf{YES*} \\ \hline
+        \texttt{Optimal} & NO & \textbf{YES}& NO & NO & NO & \textbf{YES*}\\ \hline
+        \texttt{Time} & $\mathcal{O} (b^{d +1})$ & $\mathcal{O} (b^{1 + \lfloor C^* /\epsilon \rfloor})$ & $\mathcal{O} (b^{m +1})$ & $\mathcal{O} (b^{\ell +1})$ & - & $\mathcal{O} (b^{1 + \lfloor C^* /\epsilon \rfloor})$ \\ \hline
+        \texttt{Space} & $\mathcal{O} (b^{d +1})$ & $\mathcal{O} (b^{1 + \lfloor C^* /\epsilon \rfloor})$ & $\mathcal{O} (b m)$ & $\mathcal{O} (b \ell)$ & - & \\ \hline
+        Frontier & Queue & Priority Queue & Stack & Stack & - & \\ \hline
+    \end{tabular}
+\end{center}
+
+\textit{*Condition}: if $b$ is finite, $cost \ge \epsilon > 0$ \\
+\textbf{Notation}: \textcolor{blue}{$b$}: max num of successor (branching) of any node (maybe $\infty$); \textcolor{blue}{$d$}: depth of (shallowest) goal node; \textcolor{blue}{$m$}: max depth of a node from start node; \textcolor{blue}{$C^*$}: optimal cost, $cost \ge \epsilon$ \\
+\textbf{Definition}: \texttt{Complete}: always find a solution; \texttt{Optimal}: find a least-cost solution; \texttt{Time C.}: number of nodes generated; \texttt{Space C.}: max number of nodes in memory
+
+
+\subsection{Uninformed Search}
+
+\textit{Path Checking}: In every path $\langle p_k, c \rangle$, ensure that the final state $c$ is not equal to any ancestors of $c$ along this path: $c \notin \{ s_0, s_1, ..., s_k\}$  (make sure does not go back). No increase time and space C.
+
+\textit{Cycle Checking}: Keep track of all nodes previously expanded during the search using a list (\textcolor{blue}{close list}). When expand $n_k$ to obtain successor $c$: (1) Ensure $c$ is not equal to any previously expanded node (2) If it is, do not add $c$ to Frontier; Expansive S.C.: $\mathcal{O} (b^{d +1})$
+
+\textbf{Bread-first Search}: children at \textcolor{blue}{end} of Frontier (\textcolor{red}{queue: last in last out}), extract \textcolor{blue}{first} of the F
+
+\textbf{Depth-first Search}: children at \textcolor{blue}{front} of Frontier (\textcolor{orange}{stack: last in first out}), extract \textcolor{blue}{first} of the F
+
+\textbf{Depth-limited Search}: DFS but only to a pre-specified depth limit $D$
+
+\textbf{Iterative Deepening Search}: Starting at $d=0$, loop DLS til solution or fail without cutting off
+
+\textbf{Uniform Cost Search}: expand \textcolor{blue}{least cost} node on F. (\textcolor{red}{Priority Queue}), same as BFS if all same cost
+
+%
+% \noindent\fbox{%
+%     \parbox{\linewidth}{%
+%         (1) Let $c(n)$ be the cost of path to node $n$, if $n_2$ is expanded after $n_1$ then $c(n_1) \le c(c_2)$ \\
+%         (2) Let $n$ be an arbitrary node expanded by UCS in a search space. All the nodes in the search space with cost strictly less than $c(n)$ are expanded before $n$ \\
+%         (3) Let $p$ be the first path UCS find whose final state is a state $s$. Then $p$ is a minimal cast to $s$
+%     }%
+% }
+%
+
+\subsection{Informed Search}
+
+\textbf{Greedy Bread-first Search}: $f(n) = h(n)$; ignore cost of $n$; not complement or optimal
+
+\textcolor{purple}{\textbf{A* Search}}: $f(n) = g(n) + h(n)$; $g$: cost path; $h$: heuristic estimate of cost: run out of time\&memory
+
+% \noindent\fbox{%
+%     \parbox{\linewidth}{%
+%         \textbf{Proof of Completeness}: \\
+%         (1) If a solution node $n$ exist, then all times either: (a) $n$ been expanded by A* or (b) An ancestor of $n$ is on the Frontier \\
+%         (2) Suppose (b) holds and let the ancestor on the Frontier be \textcolor{red}{$n_i$}, then \textcolor{red}{$n_i$} must have a finite $f$-value \\
+%         (3) As A* continue to run, the \textcolor{red}{f-value} of the nodes on the Frontier eventually increase; thus either A* terminates by finding solution OR $n_i$ become the node on the Frontier with the \textcolor{red}{lowest f-value} \\
+%         (4) If $n_i$ expand, then either $n_i = n$ A* returns as solution OR $n_i$ is replaced by its successors, one of which \textcolor{red}{$n_{n+1}$} is a closer ancestor of $n$ \\
+%         (5) Apply same argument to \textcolor{red}{$n_{n+1}$}, if A* continues to run, it will \textit{eventually expand every ancestor of $n$, including $n$} itself and so finds and returns a solution
+%     }%
+% }
+
+
+\noindent\fbox{%
+    \parbox{\linewidth}{%
+        \textbf{Poof C. Implies Admissible}: \textcolor{red}{$(\forall n_1, n_2, a) \quad h(n_1) \le C(n_1, a, n_2) + h(n_2) \implies (\forall n) \quad h(n) \le h^*(n)$}\\
+        (1)Base case: $k=1$, one step away from $s_g$, since consistent: $h(s_i) \ge C(s_i, s_g) + h(s_g)$, since $h(s_g) =0$, $h(s_i) \ge C(s_i, s_g) = h^*(s_i)$, therefore admissible \\
+        (2) Induction step: Suppose assumption holds for every node that is $k-1$ action away from $s_g$, given a node $s_i$, it is $k$ action away from $s_g$, thus optimal path has $k>1$ steps \\
+        (3) Since $h$ is consistent, have: $h(s_i) \le C(s_i, s_{i+1}) + h(s_{i+1})$ \\
+        (4) Note that $s_{k+1}$ is on a least-cost path from $s_i$, must have the path $s_{i+1}$ to $s_g$ as well, by induction hypothesis have: $h(s_{i+1}) \le h^*(s_{i+1})$ \\
+        (5) Combine inequality: $h(s_i) \le C(s_i, s_{i+1}) + h^*(s_{i+1})$
+    }%
+}
+
+\noindent\fbox{%
+    \parbox{\linewidth}{%
+        \textbf{Proof of Optimal with Consistency}: \textcolor{red}{$\forall n_1, n_2, \quad h(n_1) \le h(n_2) + C(n_1, a, n_2)$}\\
+        (1) WTS: $\hat{f}_{pop} (s_g) = f(s_i)$, when goal node is pooped, have found optimal \\
+        (2) Base case: $\hat{f}_{pop} (s_0) = f(s_0) - h(s_0)$ \\
+        (3) Induction step: Assume $\forall s_0, s_1, ..., s_k, \hat{f}_{pop} (s_i) = f(s_i)$, given:
+            $$ \hat{f}_{pop} (s_{k+1}) = \hat{g}_{pop} (s_{k+1}) + h(s_{k+1}) \ge g(s_{k+1}) + h(s_{k+1}) = f(s_{k+1}) $$
+        $\quad$ For $s_{k+1}$ is only explored after $s_k$, require $f(s_i) \le f(s_{k+1})$, need of consistency of $h$, pooping $s_k$ 
+            \begin{align*}
+                \hat{f}_{pop} (s_{k+1}) &= \text{min} \{\hat{f} (s_{k+1}), \, \hat{g}_{pop} (s_{k}) + c(s_k, s_{k+1}) + h(s_{k+1}) \} \\
+                                        &\le \hat{g}_{pop} (s_{k}) + c(s_k, s_{k+1}) + h(s_{k+1}) \\
+                                        &= g (s_{k}) + c(s_k, s_{k+1}) + h(s_{k+1}) &\text{from IH} \\
+                                        &= g (s_{k+1}) + h(s_{k+1}) \\
+                                        &= f(s_{k+1})
+            \end{align*} 
+    }%
+}
+
+\textbf{IDA* Search}: reduce memory requirements of A*; cutoff is the f-value rather than the depth; at each iteration, the cutoff is the \textcolor{blue}{smallest f-value} of any node that exceeded the cutoff on the previous iteration; avoids overhead with keeping a sorted queue of nodes, the Frontier occupies \textcolor{blue}{linear space}.
+
+\vspace*{100px}
+
+\section{CSPs}
+
+(1) A set of \textcolor{blue}{variables} $V_1, ..., V_n$;  \\
+(2) A (finite) \textcolor{blue}{domain} of possible values $Dom[V_i]$ for each variable $V_i$ \\
+(3) A set of \textcolor{blue}{constraints} $C_1, ..., C_m$, \\
+$\quad$ \textbf{Unary}: over one variable: $C(X): X = 2$ \\
+$\quad$ \textbf{Binary}: over two variable: $C(X, Y): X + Y  \ge 2$ \\
+$\quad$ \textbf{Higher-order}: over >3 variable: $All - Diff(V_1, ..., V_{n}): V_1 \neq V_2, ..., V_2 \neq V_1, ...V_{n} \neq V_{n-1}$ \\
+(4) Each variable $V_i$ can be assigned any value from its domain: $Vi = d \text{ where } d \in Dom[Vi]$ \\
+(5) Each constraint $C$ Has a set of variables it operates over, called its \textcolor{blue}{scope}.\\
+(6) Solution to a CSP: An assignment of a value to all of the variables such that every constraint is \textcolor{red}{satisfied}; unsatisfiable if no solution exists. \\
+
+\textbf{Back Tracking Search}: searching through the space of partial assignments, rather than paths. Decide on a suitable value for one variable at a time. Order in which we assign the variables does not matter. If a constraint is falsified during the process of partial assignment, immediately reject the current partial assignment.
+
+\textbf{Back Tracking Search  with Inference}: every time assign a value to variable $V$, check \textcolor{blue}{all constrains over $V$} and prune values from the current domain of the \textcolor{blue}{unassigned variables} of the constrains
+
+(1) \textit{Value Assignment}: define current domain (\texttt{CurDom}) of a value; first step to infer other values
+
+(2) \textbf{Degree Heuristic}: select the variable that is involved in the largest number of constrains on other \textcolor{blue}{unassigned} variables
+
+(3) \textbf{Minimum Remaining Values Heuristics}: always branch on a variable with the \textcolor{blue}{smallest remaining values} (smallest \texttt{CurDom})
+
+(4) \textbf{Least Construing Value Heuristic}: always pick a value in \texttt{CurDom} that \textcolor{blue}{rules out the least domain values} of other neighboring values in the constraint
+
+
+\newpage 
+
+\section{Games}
+
+\textit{Properties}: two player; \textcolor{blue}{finite} number of states and moves (large- heuristic cutoffs); deterministic (perfect info/observable); \textbf{zero-sum}: \textcolor{blue}{fully competitive}, total payoff to all players is constant
+
+\begin{itemize}
+    \item 2 players \textcolor{blue}{Max} and \textcolor{red}{Min}
+    \item A set of positions $P$ (states of the game)
+    \item A starting positions $P \in P$ (game begins)
+    \item A set of Terminal positions $T \subseteq P$ (game end)
+    \item A set of directed edges \textcolor{blue}{$E_{Max}$} between some positions, representing \textcolor{blue}{Max's move}
+    \item A set of directed edges \textcolor{red}{$E_{Min}$} between some positions, representing \textcolor{red}{Min's move}
+    \item A utility/payoff function $U: T \rightarrow \mathbb{R}$, representing quality each terminal state is for player \textbf{\textcolor{blue}{Max}}
+\end{itemize}
+
+\subsection{Minmax Search}
+
+\textcolor{blue}{Max} plays a move to change the state to the \textcolor{blue}{highest valued child} $U(S_0) = max \left\{ U(S_{i}), ..., U(S_{n}) \right\}$
+
+\textcolor{red}{Min} plays a move to change the state to the \textcolor{red}{lowest valued child} $U(S_0) = min \left\{ U(S_{i}), ..., U(S_{n}) \right\}$
+
+Use \textbf{DFS} to save space (finite depth); T.C.: $\mathcal{O} (b^{d})$; S.C: $\mathcal{O} (bd)$
+
+\subsection{Alpha-Beta Pruning}
+
+\textbf{At a \textcolor{blue}{Max} node $s$} \\
+(1.1) \textcolor{blue}{$\alpha_s$}: the \textcolor{blue}{highest value} of $s$ \textbf{children} examine so far (changes as examine more children) \\
+(1.2) \textcolor{red}{$\beta$}: the \textcolor{blue}{lowest value} of $s$ \textbf{parent} examine so far (fixed) \\
+(2) If \textcolor{blue}{$\alpha_s$} becomes $\ge$ \textcolor{red}{$\beta$}, stop expanding children of $s$; \textcolor{red}{Min} never choose to move from $s$ parent, would choose one of $s$ lower valued siblings 
+
+\textbf{At a \textcolor{red}{Min} node $s$} \\
+(1.1) \textcolor{blue}{$\alpha$}: the \textcolor{blue}{highest value} found so far by $s$ \textbf{parent} by previous explored siblings (fixed) \\
+(1.2) \textcolor{red}{$\beta_s$}: the \textcolor{blue}{lowest value} of value of $s$ \textbf{children} examine so far (changes as explore more children) \\
+(2) If \textcolor{blue}{$\alpha_s$} becomes $\ge$ \textcolor{red}{$\beta_s$}, stop expanding children of $s$; \textcolor{blue}{Max} never choose to move from $s$ parent, would choose one of $s$ higher valued siblings 
+
+\begin{itemize}
+    \item Set initial values: $\alpha = - \infty$ and $\beta = \infty$
+    \item While backing the utility values up the tree, identity $\alpha, \beta$ for each node (\textcolor{blue}{$\alpha$}/\textcolor{red}{$\beta$}: best already explored along the path to the root of \textcolor{blue}{MAX}/\textcolor{red}{MIN})
+    \item At every node $s$, if $\alpha \ge \beta$ \textbf{prune} (remaining) children of $s$ (\textcolor{blue}{$\alpha$}/\textcolor{red}{$\beta$}-cuts: pruning of \textcolor{blue}{MAX}/\textcolor{red}{MIN} nodes)
+\end{itemize}
+
+\textit{Ordering Moves}: \textcolor{blue}{Max} prune best if best move for Max explored first; \textcolor{red}{Min} prune best if best move for Min explored first; can use heuristics to estimate and choose 
+
+\textit{Effectiveness}: no pruning ($\mathcal{O} (b^{d)}$); if move \textbf{ordering is optimal} ($\mathcal{O} (b^{d/2})$)
+
+\vspace{150px}
+
+
+\section{Bayesian Networks}
+
+\subsection{Probability}
+
+\textbf{\textcolor{blue}{$\cap$: OR; $\cup$: AND}}
+
+% \vspace{50px}
+
+Basic Rules: $P(\mathcal{U}) = 1$, $P(A) \in \left[ 0, 1 \right]$, $P(A \cup B) = P(A) + P(B) - P(A \cap B)$
+
+Summing out Rule: $P(A) = \sum_{C_i} P(A \cap C_i)$, $P(A \mid B) = \sum_{C_i} P(A \mid B \cap C_i) P(C_i \mid B)$
+
+Normalizing: dividing each number by the sum of the numbers: \\
+(1) normalize $\left[ x_1, x_2, ... x_{k} \right] = \left[ \frac{x_1}{\alpha}, \frac{x_2}{\alpha}, ..., x_{k}/\alpha \right]$, where $\alpha$ is the sum of all $x_k$ \\
+(2) normalize $\left[ x_1, x_2, ... x_{k} \right] = \left[ x_1 \cdot \beta, x_2 \cdot \beta, ..., x_{k} \cdot \beta \right]$, where $\beta$ is any constant
+
+\textbf{Conditional Probability}: \textcolor{red}{$$ P(A \mid B) = \frac{P(A \cap B)}{P(B)} $$}
+
+\textbf{Bayes Rule}: $$ P(A \mid B) = \frac{P(B \mid A) P(A)}{P(B)} $$
+
+Chain Rule: $$ P(A_1 \cap A_2 ... \cap A_n) = P(A_n \mid A_1 ... \cap A_{n-1}) \cdot P(A_{n-1} \mid A_1 ... \cap A_{n-1}) \cdot ... \cdot P(A_2 \mid A_1) \cdot P(A_1) $$
+
+\textbf{Independence}: $P(V_1 \mid V_2) = P(V_1)$ ($V_1, V_2$ are independent)
+\textcolor{red}{$$ P(A \mid B) = P(A) \quad P(A \cap B) = P(A) \cdot P(B) $$}
+
+\textbf{Conditional Independence}: $A$ is conditionally independent of $B$ given $C$
+$$ P(A \mid B \cap C) = P(A \mid C) \quad P(A \cap B \mid C) = P(A \mid C) \cdot P(B \mid C) $$
+
+\textbf{Joint Distribution}: $Dom[V_1] = Dom[V_2] = \left\{ 1, 2, 3  \right\}$, $P(V_1, V_2)$ are vector of 9
+$$ P(v_1 =1, V_2 = 1), P(V_1 = 1, V_2 = 2), ..., P(V_1=2, V_2=1), ..., P(V_1=3, V_2=3) $$
+
+Conditional Probabilty Table (CPT): $Dom[V_1] = Dom[V_2] = Dom[V_3] \left\{ 1, 2, 3  \right\}$, $P(V_1 \mid V_2, V_3)$ are 27 values; $P(V_1 = 1 \mid V_2 = 1, V_3 = 1), ..., P(V_1 = 3 \mid V_2 = 3, V_3 = 3$
+
+\subsection{Bayesian Network}
+
+\textbf{Conditional Independence}: \\
+\texttt{E → C → A → B → H}: \\
+(1) $B$ is independent of E, and C, \textcolor{blue}{given} A, A is independent of E \textcolor{blue}{given} C \\
+(2) Computation: $P(H \mid B, \left\{ A, C, E \right\}) = P(H \mid B)$ \\
+(3) Chain rule: $P(H, B, A, C, E) = P(H \mid B, A, C, E) P(B \mid A, C, E) P(A \mid C, E) P(C \mid E) P(E)$ \\
+(4) Independenece assumption: $P(H, B, A, C, E) = P(H \mid B) P(B \mid A) P(A \mid C) P(C \mid E) P(E)$ \\
+(5) Joint distributions: $P(\mathcal{A} = \sum_{x_i \in Dom(X)} P(\mathcal{A} \mid x_i) P(x_i) = \sum_{x_i \in Dom(X)} P(\mathcal{A} \mid x_1) \sum_{y_i \in Dom(Y)} P(x_i \mid y_i) P(y_i)$ \\
+Ex. $P(c) = P(c \mid e) P(e) + P(c \mid \neg e) P(\neg e)$
+
+\subsection{Network and Chain Rule}
+
+\newpage 
+
+\subsection{Variable Elimination \& Factoring}
+
+VE \textcolor{blue}{sum out} the innermost variable, computing a new \textcolor{blue}{function} over \textcolor{blue}{variables in that sum}.
+
+\vspace*{200px}
+
+\subsection{D-Separation (Independence)}
+
+\textit{Independence}: every $X_i$ is conditionally independent of all of its \textcolor{blue}{nondescendants} given it parents
+
+
+(1) A set of variables $E$ \textcolor{blue}{d-separates} $X, Y$ if it \textcolor{blue}{blocks every undirected path} in the BN between $X, Y$ \\
+$\quad \quad$ Let $P$ be an \textcolor{blue}{undirected path} from $X, Y$ in a BN; let $E$ (evidence) be a set of variables \\
+$\quad \quad$ $E$ \textcolor{blue}{blocks} path $P$ iff there is some node $Z$ on path $P$ such that:
+\begin{itemize}
+    \item $Z \in E$ and one arc on $P$ enters (goes into) $Z$ and one leaves (goes out of) $Z$
+    \item $Z \in E$ and both arcs on $P$ leave $Z$
+    \item Both arcs on $P$ enter $Z$ and neither Z, nor any of its descendants are in $E$
+\end{itemize}
+
+(2) $X, Y$ are \textcolor{red}{conditionally independent} given evidence $E$ if $E$ d-separates $X, Y$
+
+\vspace*{220px}
+
+.
+
+
+\section{Knowledge Representation}
+
+\textit{Representation}: \textcolor{blue}{Symbolic} encoding of propositional believed 
+
+\textit{Reasoning}: \textcolor{blue}{Manipulation} of symbolic encoding of propositions to produce propositions that believed by the agent but are \textcolor{blue}{not explicitly stated}
+
+\subsection{First-order Logic}
+
+\textbf{Syntax}: A grammar specifying what are legal syntactic constructs of the representation.
+
+\begin{itemize}
+    \item Propositional variable: \textcolor{blue}{True} or \textcolor{blue}{False} variables
+    \item $A \land B$ (conjection); $A \lor B$ (disjection); $\quad A \implies B$ (implication); $A \iff B$ (bi-implication)
+    \item A st $V$ of variables; A set of $F$ of function symbols; A set of $P$ of predicate/relation symbols
+\end{itemize}
+
+% $\quad \quad$ Let $\mathcal{L}$ be a set of function and predicate symbols: \\
+% $\quad\quad$ (1) every variable is a term; (2) if $f$ is an $n$-ary function symbol in $\mathcal{L}$ and $... t_n$ are $\mathcal{L}$ terms, then \\
+% $\quad\quad f(t_1, t_2, ..., t_n)$  is a $\mathcal{L}$ term
+
+$\quad \quad$ Let $\mathcal{L}$ be a vocabulary, the set of first-order $\mathcal{L}$-formulas as defined:
+
+\begin{itemize}
+    \item Atomic formula: $P(t_1, t_2, ..., t_n)$ where $P$ is an $n$-ary predicate symbol in $\mathcal{L}$, and $t_n$ are $\mathcal{L}$ terms
+    \item Negation: $\neg f$, where $f$ is a $\mathcal{L}$-formula
+    \item Conjection: $f_1 \land f_2 \land ... \land f_n$, where $f_1, ..., f_n$ are $\mathcal{L}$-formula
+    \item Disjunction $f_1 \lor f_2 \lor ... \lor f_n$, where $f_1, ..., f_n$ are $\mathcal{L}$-formula
+    \item Implication: $f_1 \implies f_2$, where $f_1, f_2$ are $\mathcal{L}$-formula
+    \item Existential: $\exists x f$, where $x$ is a variable and $f$ is a $\mathcal{L}$-formula
+    \item Universal $\forall x f$, where $x$ is a variable and $f$ is a $\mathcal{L}$-formula
+\end{itemize}
+
+$\quad\quad$ Ex. $AC(x)$: $x$ belongs to Alpine Club; $L(x, y)$: $x$ likes $y$
+
+
+
+\textbf{Semantics:} A formal mapping from syntactic constructs to set theoretic assertions \\
+$\quad\quad$ Truth Assignment: a function $\tau$ from the propositional variables into the set of $\left\{ T, F  \right\}$ \\
+$\quad\quad$ Let $\tau$ be a t.a. extension $\bar{\tau}$ of $\tau$ assigns either $T, F$ to every formula and is defined as:
+
+\begin{itemize}
+    \item If $A = x$, where $x$ is a variable, then $\bar{\tau} = \tau (x)$
+    \item $\bar{\tau} (\neg A) = T$, IFF $\bar{\tau} (A) = F$
+    \item $\bar{\tau} (A \land B) = T$ IFF $\bar{\tau} (A) = T$ AND $\bar{\tau} (B) = T$
+    \item $\bar{\tau} (A \lor B)$ IFF $\bar{\tau} (A) = T$ OR $\bar{\tau} (B) = T$
+    \item $\bar{\tau} (A \implies B) = F$ IFF $\bar{\tau} (A) = T$ AND $\bar{\tau} (B) = F$
+\end{itemize}
+
+$\quad \quad \tau$ \textcolor{blue}{satisfies a set} $\Phi$ of formulas IFF $\tau$ satisfies all formula in $\Phi$
+
+$\quad\quad$ a formula $A$ is a \textcolor{blue}{logical consequence} of $\Phi \vDash A$ IFF for every t.a. $\tau$ satisfies $\Phi$, then $\tau$ satisfies $A$
+
+\textbf{Structure}: let $\mathcal{L}$ be a first order vocabulary, an $\mathcal{L}$-structure $\mathcal{M}$ consists:
+
+\begin{itemize}
+    \item Nonempty set $M$ called the \textcolor{blue}{universe (domain) of discourse}
+    \item For each $n$-ary function symbol $f \in \mathcal{L}$, and associated function $f^{\mathcal{M}}: M^{n} \rightarrow M$ (if $n=0$, then $f$ is a constant symbol and $f^{\mathcal{M}}$ is simply an element of $M$. $f^{\mathcal{M}}$ is called the \textcolor{blue}{extension} of the function symbol $f$ in $\mathcal{M}$)
+    \item For each $n$-ary predicate symbol $P \in \mathcal{M}$, an assorted relation $P^{\mathcal{M}} \subseteq M^{n}$. $P^{\mathcal{M}}$ is called the extension of the predicate symbol $P$ in $\mathcal{M}$
+\end{itemize}
+
+\newpage
+
+\textbf{Variable Assignments}: let $\mathcal{M}$ be a structure and $X$ be a set of variables. An \textcolor{blue}{object assignment} $\sigma$ for $\mathcal{M}$ is \textbf{mapping} from variables in $X$ to the universe of $M$
+
+Recursive definition: let $\mathcal{L}$ be a set of function and predicate symbols \\
+(1) Every variable $x$ is a term; \\
+(2) if $f$ is an $n$-ary function symbol in $\mathcal{L}$ and $t_1, t_2, ..., t_n$ are $\mathcal{L}$-terms, then $f(t_1, t_2, ..., t_n)$ is a $\mathcal{L}$-term
+
+Let $\mathcal{L}$ be a vocabulary and $\mathcal{M}$ be an $\mathcal{L}$-structure, the extension $\bar{\sigma}$ of $\sigma$ is defined recursively: \\
+(1) For every variable $x, \bar{\sigma}(x) = \sigma (x)$;\\
+(2) For every function symbol $f \in \mathcal{L}, \bar{\sigma}(f(t_1, ...t_n)) = f^{\mathcal{M}} (\bar{\sigma} (t_1), ..., \bar{\sigma} (t_n))$
+
+\textbf{Model Interpretation}
+
+For an $\mathcal{L}$-formula $C$, $\mathcal{M} \vDash C \left[ \sigma \right]$ ($\mathcal{M}$ \textcolor{blue}{satisfies} $C$ under $\sigma$, or $\mathcal{M}$ is a \textcolor{blue}{model} of $C$ under $\sigma$) is defined recursively on the structure of $C$ as:
+
+\begin{itemize}
+    \item $\mathcal{M} \vDash P(t_1, ..., t_n) \left[ \sigma \right] \iff \langle \bar{\sigma} (t_1), ..., \bar{\sigma}(t_n) \rangle \in P^{\mathcal{M}}$
+    \item $\mathcal{M} \vDash (s = t) \left[ \sigma \right] \iff \bar{\sigma}(s) = \bar{\sigma} (t)$
+    \item $\mathcal{M} \vDash \neg A \left[ \sigma \right] \iff \mathcal{M} \nvDash A \left[ \sigma \right]$
+    \item $\mathcal{M} \vDash (A \lor B) \left[ \sigma \right] \iff \mathcal{M} \vDash A \left[ \sigma \right] \lor \mathcal{M} \vDash B \left[ \sigma \right]$
+    \item $\mathcal{M} \vDash (A \land B) \left[ \sigma \right] \iff \mathcal{M} \vDash A \left[ \sigma \right] \land \mathcal{M} \vDash B \left[ \sigma \right]$
+    \item $\mathcal{M} \vDash (\forall x A) \left[ \sigma \right] \iff \mathcal{M} \vDash A \left[ \sigma (m/x) \right]$ for all $m \in M$
+    \item $\mathcal{M} \vDash (\exists x A) \left[ \sigma \right] \iff \mathcal{M} \vDash A \left[ \sigma (m/x) \right]$ for some $m \in M$
+\end{itemize}
+
+$\quad\quad \sigma(m/x)$ is an o.a. function exactly like $\sigma$, but maps the variable $x$ to the individual $m \in M$:  \\
+$\quad\quad$ (1) For $y \neq x: \sigma(m/x) (y) = \sigma(y)$
+(2) For $x: \sigma(m/x) (x) = m$
+
+\textbf{Bounded}: an occurrence of $x \in A$ is bounded iff it is an sub-formula of $A$ of the form $\forall x B$ or $\exists x B$; otherwise the occurrence is \textcolor{blue}{free} \\
+In a structure $\mathcal{M}$, formula with free variables might be true for some object assignments to the free variable and false to others
+
+\textbf{Sentence}: a formula $A$ is closed if it contains no free occurrence of a variable \\
+If $\sigma$ and $\sigma'$ agree on the free variables of $A$, then $\mathcal{M} \vDash A \left[ \sigma \right] \iff \mathcal{M} \vDash A \left[ \sigma' \right]$
+
+\textbf{Corollary}: if $A$ is a \textcolor{blue}{sentence}, then for any object assignments $\sigma$, and $\sigma'$:
+
+$$ \mathcal{M} \vDash A \left[ \sigma \right] \iff \mathcal{M} \vDash A \left[ \sigma' \right] $$
+
+$\quad \quad$ so if $A$ is a sentence (no free variables), $\sigma$ is irrelevant and omit mention of $\sigma$, $\mathcal{M} \vDash A$
+
+\textbf{Satisfiability}: let $\Phi$ be a set of sentences
+
+\begin{itemize}
+    \item $\mathcal{M}$ \textcolor{blue}{satisfies} $\Phi$ ($\mathcal{M} \vDash \Phi$), if for \textcolor{red}{every} sentence $A \in \Phi, \mathcal{M} \vDash A$
+    \item If $\mathcal{M} \vDash \Phi$, say $\mathcal{M}$ is a \textcolor{blue}{model} of $\Phi$
+    \item Say that $\Phi$ is \textcolor{blue}{satisfiable} if there is a structure $\mathcal{M}$ such that $\mathcal{M} \vDash \Phi$
+\end{itemize}
+
+\textbf{Unsatisfiable}: if $A$ is a \textbf{logical consequence} of $\Phi$, then there is no $\mathcal{M}$ such that $\mathcal{M} \vDash \Phi \cup \left\{ \neg A \right\}$
+
+\subsection{Resolution by Refutation}
+
+\textit{Knowledge Base}: a collection of \textcolor{blue}{sentences} that represent what the agent believes about the world 
+
+Sentences in KB are explicit knowledge; logical consequences of the KB are implicit 
+
+\textbf{Resolution} works with formulas expressed in \textcolor{blue}{clausal form}
+
+\textit{Literal}: an atomic formula or the negation of an a.f. (ex. $dog(Fido), \neg cat(fido)$)
+
+\textit{Clause}: disjunction of literals (ex. $P(x) \lor \neg Q(x, y) \quad \neg O(fido) \lor \neg Dog(fido)$)
+
+\textbf{Clausal Theory}: a set of clauses, can be considered as conjection of clauses ($P(x) \lor \neg Q(x, y), \neg O(fido)$)
+
+\textbf{Resolution Proof} using inference rule
+
+$$ \frac{a_1 \lor a_2 \lor ... \lor a_n \lor c \quad b_1 \lor b_2 \lor ... \lor b_m \lor \neg c}{a_1 \lor a_2 \lor ... \lor a_n \lor b_1 \lor b_2 \lor ... \lor b_m} $$
+
+\textbf{Resolution by Refutation to Show}: \textcolor{purple}{$KM \nDash A$}
+
+\begin{itemize}
+    \item Assume \textcolor{red}{$\neg A$} is true to generate a contradiction (\textbf{refutation})
+    \item Convert $\neg A$ and all sentences in KM to a \textcolor{blue}{clausal theory} $C$
+    \item \textcolor{blue}{Resolve} the clauses in $C$ until an empty clause is obtained
+\end{itemize}
+
+\subsection{Eliminate Implications}
+
+\textbf{Implication Rule}: $A \rightarrow B \iff \neg A \lor B$
+
+\begin{itemize}
+    \item $\neg (A \land B) \iff \neg A \lor \neg B$
+    \item $\neg (A \lor B) \iff \neg A \land \neg B$
+    \item $\neg \forall x A \iff \exists x \neg A$
+    \item $\neg \exists x A \iff \forall x \neg A$
+\end{itemize}
+
+\textbf{Standardize Variables}: rename variables so that each quantified variable is unique
+
+\textbf{Skolemizaation}: remove existential quantifiers by introducing new function symbols
+
+\textbf{Convert to Prenex Form}: bring all quantifiers to the front \\
+(1) $\forall x P \land Q \iff Q \land \forall x P \iff \forall x (P \land Q)$; 
+(2) $\forall x P \lor Q \iff Q \lor \forall x P \iff \forall x (P \lor Q)$; 
+
+\textbf{Conjunctions over disjunctions}: $A \lor (B \land C) \iff (A \lor B) \land (A \lor C)$
+
+\textbf{Flatten nested $\land, \lor$}: $A \lor (B \lor C)$ to $(A \lor B \lor C)$
+
+\textbf{Convert to Clauses}
+
+Resolution is refutation complete: If a set of clauses is unsatisfiable (i.e., when the answer is "YES") and so some branch contains [ ], a breadth-first search guaranteed to find [ ].
+
+First-order unsatisfiability is semi-decidable, but not decidable. Thus, calculating entailments is semi-decidable and undecidable. First-order satisfiability is undecidable.
+
+\textbf{Decidable} if there is some algorithm that correctly generates a "YES-NO" answer for every possible input. Otherwise, it’s undecidable.
+
+Semi-decidable if there is some algorithm that correctly generates "YES" answers, but
+does not terminate on some inputs for which the answer is "NO"
+
+\vspace{350px}
+
+.
+
+
+\end{multicols}
+
+
+
+
+
+\end{document}
+

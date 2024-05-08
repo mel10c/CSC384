@@ -1,0 +1,291 @@
+\documentclass[10pt,landscape]{article}
+\usepackage{amssymb,amsmath,amsthm,amsfonts}
+\usepackage{multicol,multirow}
+\usepackage{calc}
+\usepackage{ifthen}
+\usepackage[landscape]{geometry}
+\usepackage[colorlinks=true,citecolor=blue,linkcolor=blue]{hyperref}
+\usepackage{setspace}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\graphicspath{ {./images/} }
+% \usepackage{tabularray}
+\usepackage{wrapfig}
+
+
+
+\setstretch{1.5}
+\ifthenelse{\lengthtest { \paperwidth = 11in}}
+    { \geometry{top=.2in,left=.2in,right=.2in,bottom=.2in} }
+	{\ifthenelse{ \lengthtest{ \paperwidth = 297mm}}
+		{\geometry{top=1cm,left=1cm,right=1cm,bottom=1cm} }
+		{\geometry{top=1cm,left=1cm,right=1cm,bottom=1cm} }
+	}
+\pagestyle{empty}
+\makeatletter
+\renewcommand{\section}{\@startsection{section}{1}{0mm}%
+                                {-1ex plus -.5ex minus -.2ex}%
+                                {0.5ex plus .2ex}%x
+                                {\normalfont\large\bfseries}}
+\renewcommand{\subsection}{\@startsection{subsection}{2}{0mm}%
+                                {-1explus -.5ex minus -.2ex}%
+                                {0.5ex plus .2ex}%
+                                {\normalfont\normalsize\bfseries}}
+\renewcommand{\subsubsection}{\@startsection{subsubsection}{3}{0mm}%
+                                {-1ex plus -.5ex minus -.2ex}%
+                                {1ex plus .2ex}%
+                                {\normalfont\small\bfseries}}
+\makeatother
+\setcounter{secnumdepth}{0}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt plus 0.5ex}
+% -----------------------------------------------------------------------
+
+\title{Quick Guide to LaTeX}
+
+\begin{document}
+
+\raggedright
+\footnotesize
+
+\begin{center}
+    \begin{tabular}{|l|l|l|l|l|l|}
+        \hline
+        Property & Breadth-First Search (BFS) & Uniform-Cost Search (UCS) & Depth-First Search (DFS) & Depth-Limited Search (DLS) & Iterative-Deepening Search (IDS) \\ \hline
+        \texttt{Completeness} & \textbf{YES} (if $b$ is finite) & \textbf{YES} (if $b$ is finite, $cost \ge \epsilon > 0$) & NO & NO & NO \\ \hline
+        \texttt{Optimal} & NO & \textbf{YES} (Proof below) & NO & NO & NO \\ \hline
+        \texttt{Time} & $\mathcal{O} (b^{d +1})$ & $\mathcal{O} (b^{1 + \lfloor C^* /\epsilon \rfloor})$ & $\mathcal{O} (b^{m +1})$ & $\mathcal{O} (b^{\ell +1})$ & $\mathcal{O} (b^{d +1})$ \\ \hline
+        \texttt{Space} & $\mathcal{O} (b^{d +1})$ & $\mathcal{O} (b^{1 + \lfloor C^* /\epsilon \rfloor})$ & $\mathcal{O} (b m)$ & $\mathcal{O} (b \ell)$ & $\mathcal{O} (b d)$ \\ \hline
+         &  &  &  &  &  \\ \hline
+        Frontier & Queue (FIFO) & Priority Queue & Stack (LIFO) & Stack & - \\ \hline
+    \end{tabular}
+\end{center}
+
+\textbf{Notation}: $b$: max num of successor (branching) of any node (maybe $\infty$); $d$: depth of (shallowest) goal node; $m$: max depth of a node from start node; $C^*$: optimal cost, $cost \ge \epsilon$ \\
+\textbf{Definition}: \texttt{Complete}: always find a solution; \texttt{Optimal}: find a least-cost solution; \texttt{Time C.}: number of nodes generated; \texttt{Space C.}: max number of nodes in memory
+
+\begin{multicols}{2}
+\setlength{\premulticols}{1pt}
+\setlength{\postmulticols}{1pt}
+\setlength{\multicolsep}{1pt}
+\setlength{\columnsep}{2pt}
+
+% \section{Search Problem}
+
+(1) \textcolor{blue}{State Space}: A state is a representation of a configuration of the problem domain. \\
+(2) \textcolor{blue}{Initial State}: The starting configuration. \\
+(3) \textcolor{blue}{Goal State}: The configuration one wants to achieve. \\
+(4) \textcolor{blue}{Actions}: (or State Space Transitions): Allowed changes to move from one state to another \\
+(1) \textcolor{orange}{Costs}: Representing the cost of moving from state to state.\\
+(2) \textcolor{orange}{Heuristics}: Help guide the heuristic process. \\
+
+\textbf{Example of Sudoku Representation}: \\
+
+(1) \textcolor{blue}{State} in this problem is a (partial) valid solution of the Sudoku puzzle. More formally, it would be a matrix $M \in \{0, . . . , 9\}^{9×9}$, with 0 representing a blank square. \\
+(2) \textcolor{blue}{Initial state} is a completed filled out grid of numbers. All rows, columns, and $3 \times 3$ squares should contain all numbers between $1, . . . , 9$. Any state in the problem will be a valid goal state. \\
+(3) \textcolor{blue}{Action} would be removing a number from the grid. More formally, we take as input a matrix $M$ and a matrix $E_{i,j} (a)$, where $E_{i,j} (a) \in \{0, . . . , 9\}^{9×9}$ is a matrix of all zeroes except for a nonzero value $a \in \{1, . . . , 9\}$ in coordinate $(i, j)$. An action would be setting $M - E_{i,j} (a)$. \\
+(4) \textcolor{blue}{Transition model} would be $T (M, E_{i,j} (a)) = M - E_{i,j} (a)$. \\
+
+\textbf{Path Checking} \\
+
+A path $p_k$ is represented as a tuple of states $\langle s_0, s_1, ..., s_k \rangle$, where $s_k$ are states, Suppose $s_k$ expanded to obtain a child success state $c$, $\langle s_0, s_1, ..., s_k, c \rangle$ as $\langle p_k, c \rangle$ \\
+
+In every path $\langle, p_k, c \rangle$, ensure that the final state $c$ is not equal to any ancestors of $c$ along this path: $c \notin \{ s_0, s_1, ..., s_k\}$  (make sure does not go back). Does not increase time and space complexity, while does not prune all redundant states
+
+\textbf{Cycle Checking}
+
+Keep track of all nodes previously expanded during the search using a list (close list). When expand $n_k$ to obtain successor $c$: (1) Ensure $c$ is not equal to any previously expanded node (2) It it is do do not add $c$ to Frontier
+
+\subsection{BFS}
+
+\textbf{Proof that BFS is Complete}:
+If the shallowest goal node is at some finite depth $d$, breadth-first search will eventually find it after generating all shallower nodes (provided the branching factor $b$ is finite).
+
+Let path $\langle s_0, s_1, ..., s_k, s_g \rangle$ be the optimal path from $s_0$ to $s_g$ \\
+Base case: $k+1 = 0 \implies s_0 = s_g$ \\
+Induction Hypothesis: BFS will find a path to all nodes with path length $<k + 1$ \\
+Induction Step: assume start at $s_k$, $s_g$ will be explored as successor of $s_k$
+
+% \textbf{Priority Queue does not find optimal for BFS}: checking the queue too early;
+
+\subsection{UCS}
+
+Expands the node $n$ with the lowest path cost $g(n)$
+
+% $$
+% \begin{align*}
+%         &\textbf{function } UniformCostSearch(problem) \textbf{ returns } solution \text{ or } failure \\
+%         &\quad F(\text{Frontier}) \leftarrow \text{PriorityQueue}(u) \\
+%         &\quad E(\text{Explored}) \leftarrow \{u\} \\
+%         &\quad \hat{g}[u] = 0 \\
+%         &\quad \textbf{while } F \text{ is not empty } \textbf{do} \\
+%         &\quad \quad\quad u \leftarrow F.pop() \\
+%         &\quad \quad\quad \textbf{if } GoalTest(v) \textbf{ then} \quad \text{# Bring} GoalTest() \text{outside of for loop}  \\
+%         &\quad \quad\quad \quad\quad \textbf{return } path(v) \\
+%         &\quad \quad\quad E.add(u) \\
+%         &\quad \quad\quad \textbf{for } \text{all children } v \text{ of } u \textbf{ do} \\
+%         &\quad \quad\quad \quad\quad \textbf{if } v \text{ not in } E \textbf{ then} \\
+%         &\quad \quad\quad \quad\quad \quad\quad \textbf{if } v \text{ not in } F \textbf{ then} \quad \text{# Check if it is in frontier AND explored} \\
+%         &\quad \quad\quad \quad\quad \quad\quad \quad\quad \hat{g}[v] = min \left(\hat{g}[v], \hat{g}[u] + c(u, v)\right) \quad \\
+%         &\quad \quad\quad \quad\quad \quad\quad \textbf{else } \\
+%         &\quad \quad\quad \quad\quad \quad\quad \quad\quad F.push(v) \\
+%         &\quad \quad\quad \quad\quad \quad\quad \quad\quad \hat{g}[v] = \hat{g}[u] + c(u, v) \quad \text{# replace that frontier node(u) with child(v)} \\
+%         &\quad \textbf{return } Failure \\
+% \end{align*}
+% $$
+
+\textbf{Proof that USC is Optimal}
+% Given that each step cost exceeds some small positive constant $\epsilon$, completeness may be assumed. Consequently: \\
+% (1) Whenever UCS expands a node $n$, the optimal path to that node has been found. If this was not the case, there would have to be another frontier node $n'$ on the optimal path from the start node to $n$. By definition, $n'$ would have a lower value of $g$ than $n$, and thus would have been selected first. \\
+% (2) If step costs are non-negative, paths never get shorter as nodes are added. \\
+% The above two points together imply that UCS expands nodes in the order of their optimal path cost.
+Finds optimal solution if each transition has $cost \ge \epsilon > 0$ \\
+(1) Let $c(n)$ be the cost of path to node $n$, if $n_2$ is expanded after $n_1$ then \textcolor{red}{$c(n_1) \le c(c_2)$}: \\
+$\quad$ a. $n_2$ was on the frontier when $n_1$ was expanded, in which case $c(n_2) \ge c(n_1)$ else $n_1$ would not have been selected for expansion \\
+$\quad$ b. $n_2$ was added to the frontier when $n_1$ was expanded, in which case $c(n_2) \ge c(n_1)$ since the path to $n_2$ extends to the path to $n_1$ \\
+(2) When $n$ is expanded every path with cost strictly less than $c(n)$ has already expand \textcolor{red}{before $n$} \\
+$\quad$ Let $\langle n_0, n_1, ..., n_k \rangle$ be a path with cost less than $c(n)$, let $n_i$ be the last node on this path that has been expanded: $\langle n_0, n_1, ..., n_i, n_{i+1}, n_k \rangle$\\
+$\quad$ So $n_{i+1}$ must still be on the frontier, also $c(n_{i_1}) < c(n)$ since the cost of the entire path to $n_k$ is $< c(n)$ \\
+$\quad$ But then, UCS would have expanded $n_{i+1}$, not $n$ \\
+$\quad$ So every node on this path already be expanded, QED \\
+(3) The first time UCS expand a state, $s$ it has found the \textcolor{red}{minimal cost path} to it \\
+$\quad$ No cheaper path exist, else would have been expanded before \\
+$\quad$ No cheaper path will be discovered later, as all those path must be at least as expensive \\
+$\quad$ So when a goal state is expanded, the path to it must be optimal
+
+
+\subsection{Uninformed Search vs. Informed Search}
+
+Informed search :\textit{domain specific} heuristic function $h(n)$ that guesses the cost of to goal from $n$ \\
+(1) $h(n_1) < h(n_2)$ implies that it is cheaper to get to goal node from $n_1$ than from $n_2$ \\
+(2) $h(n)$ is a function only of the state of $n$ (use state, ratter than node as argument of $h$) \\
+(3) $h$ must be defined so that $h(n) = 0$ for every goal node
+
+\textbf{Greedy First Search}: $f(n) = h(n)$
+
+
+
+\subsection{A* Search}
+
+Define an evaluation function $f(n)$ such that $f(n) = g(n) + h(n)$ \\
+(1) $g(n)$: the cost of the path to $n$  \\
+(2) $h(n)$: the heuristic estimate of the cost of achieving the goal from $n$
+
+\textbf{Proof of Completeness}:\\
+\textcolor{orange}{Theorem 1}: A* will always find a solution if one exist as long as (branching is finite AND action has finite $cost \ge \epsilon > 0$): \\
+(1) $h(n)$ is finite for every node $n$ that can be extended to reach a goal node, If a solution node $n$ exist, then all times either: \\
+$\quad$ a. $n$ been expanded by A* or
+$\quad$ b. An ancestor of $n$ is on the `Frontier` \\
+(2) Suppose (b) holds and let the ancestor on the `Frontier` be $n_i$, then $n_i$ must have a finite $f$-value \\
+(3) As A* continue to run, the f-value of the nodes on the Frontier eventually increase; thus either A* terminates by finding solution OR $n_i$ become the node on the Frontier with the lowest f-value \\
+(4) If $n_i$ expand, then either $n_i = n$ A* returns as solution OR $n_i$ is replaced by its successors, one of which $n_{n+1}$ is a closer ancestor of $n$ \\
+(5) Apply same argument to $n_{n+1}$, if A* continues to run, it will eventually expand every ancestor of $n$, including $n$ itself and so finds and returns a solution
+
+\textbf{Proof of Optimal with Consistency}: \textcolor{red}{$\forall n_1, n_2, \quad h(n_1) \le h(n_2) + C(n_1, a, n_2)$}\\
+WTS: $\hat{f}_{pop} (s_g) = f(s_i)$, when goal node is pooped, have found optimal \\
+Let $\langle s_0, s_1, ..., s_{g-1}, s_g \rangle$ be the path from start node to goal node \\
+Base case: $\hat{f}_{pop} (s_0) = f(s_0) - h(s_0)$ \\
+Induction step: Assume $\forall s_0, s_1, ..., s_k, \hat{f}_{pop} (s_i) = f(s_i)$, given
+$$
+\begin{align*}
+    \hat{f}_{pop} (s_{k+1}) &= \hat{g}_{pop} (s_{k+1}) + h(s_{k+1}) \\
+                            &\ge g(s_{k+1}) + h(s_{k+1}) \\
+                            &= f(s_{k+1})
+\end{align*}
+$$
+
+To make sure that each $s_{k+1}$ is only explored after pooped $s_k$, require $f(s_i) \le f(s_{k+1})$, leading to need of consistency of $h$, by pooping $s_k$
+
+$$
+\begin{align*}
+    \hat{f}_{pop} (s_{k+1}) &= \text{min} \{\hat{f} (s_{k+1}), \, \hat{g}_{pop} (s_{k}) + c(s_k, s_{k+1}) + h(s_{k+1}) \} \\
+                            &\le \hat{g}_{pop} (s_{k}) + c(s_k, s_{k+1}) + h(s_{k+1}) \\
+                            &= g (s_{k}) + c(s_k, s_{k+1}) + h(s_{k+1}) &\text{from IH} \\
+                            &= g (s_{k+1}) + h(s_{k+1}) \\
+                            &= f(s_{k+1})
+\end{align*}
+$$
+
+\textbf{Proof of Accessibility}: \textcolor{red}{$\forall n \quad h(n) \le h^*(n)$} \\
+
+\textcolor{orange}{Proposition 1}: $f(n) \le c^*$:  A* with an admissible heuristics never expands a node with f-value greater than the cost of an optimal solution \\
+$\quad$ (1) Let $C^*$ be the cost \\
+$\quad$ (2) Let $p: \langle s_0, s_1, ..., s_k \rangle$ be an optimal solution, so $cost(p) = cost(\langle s_0, s_1, ...s_k \rangle) = C^*$ \\
+$\quad$ (3) Let $n$ be a node reachable from the initial state and $n_0, n_2, ..., n_i, ...n$ be ancestors of $n$, so at least one of $n_0, n_2, ..., n_i, ...n$ is **always** on the `Frontier` \\
+$\quad$ (4) Want to show that with an admissible heuristic, for every prefix $n_i$ of $n$, have $f(n_i) \le C^*$
+    $$
+    \begin{align}
+    C^* &= cost(\langle s_0, s_1, ..., s_k \rangle) \\
+    &= cost(\langle s_0, s_1, ..., s_i \rangle) + cost(\langle s_i, ..., s_k \rangle) \\
+    &= g(n_i) + h^*(n_i) &\text{$h^*(n_i)$ is the c of op, since $p$ is optimal} \\
+    &\ge g(n_i) + h(n_i) &\text{$h^*(n_i) \ge h(n_i)$ $h$ is admissible} \\
+    &= f(n_i) \\
+    \end{align}
+    $$
+$\quad$ (5) Know that A\* always expands a node on the `Frontier` that has lowest $f$-value, so every node A\* expands has f-value less than or equal to $f(n_i)$, which is less than or equal to $C^*$ \\
+
+
+\textcolor{orange}{Theorem 2} A* with an admissible heuristic always finds an optimal cost solution, as long as (branching is finite AND action has finite $cost \ge \epsilon > 0$) \\
+$\quad$ (7) Let $C^*$ be the cost of an optimal solution \\
+$\quad$ (8) If a solution exist then by (completeness), A\* will terminate by expanding some solution node $n$ \\
+$\quad$ (9) According to Proposition 1, $f(n) \le C^*$ \\
+$\quad$ (10) Since $n$ is a goal node, have $h(n) = 0$, so $f(n) = g(n) + 0 = cost(n)$, thus $f(n) = cost(n) \le C^*$ \\
+$\quad$ (11) Since no solution can have lower cost than the optimal: $C^* \le cost(n) = f(n)$ \\
+$\quad$ (12) Therefore $cost(n) = C^*$, thus A\* returns a cost-optimal solution\\
+
+
+\textbf{Proof of Consistency Implies Admissible}: \textcolor{red}{$(\forall n_1, n_2, a) \quad h(n_1) \le C(n_1, a, n_2) + h(n_2) \implies (\forall n) \quad h(n) \le h^*(n)$}\\
+
+Base case: $k=1$, one step away from $s_g$, since consistent: $h(s_i) \ge C(s_i, s_g) + h(s_g)$, since $h(s_g) =0$, $h(s_i) \ge C(s_i, s_g) = h^*(s_i)$, therefore admissible \\
+Induction step:
+$\quad$ (1) Suppose assumption holds for every node that is $k-1$ action away from $s_g$, given a node $s_i$, it is $k$ action away from $s_g$, thus optimal path has $k>1$ steps \\
+$\quad$ (2) Since $h$ is consistent, have: $h(s_i) \le C(s_i, s_{i+1}) + h(s_{i+1})$ \\
+$\quad$ (3) Note that $s_{k+1}$ is on a least-cost path from $s_i$, must have the path $s_{i+1}$ to $s_g$ as well, by induction hypothesis have: $h(s_{i+1}) \le h^*(s_{i+1})$ \\
+$\quad$ (4) Combine inequality: $h(s_i) \le C(s_i, s_{i+1}) + h^*(s_{i+1})$
+
+\newpage
+
+\subsection{Constraint Satisfaction Problems}
+
+(1) A set of \textcolor{blue}{variables} $V_1, ..., V_n$;  \\
+(2) A (finite) \textcolor{blue}{domain} of possible values $Dom[V_i]$ for each variable $V_i$ \\
+(3) A set of \textcolor{blue}{constraints} $C_1, ..., C_m$, \\
+(4) Each variable $V_i$ can be assigned any value from its domain: $Vi = d \text{where} d \in Dom[Vi]$ \\
+(5) Each constraint $C$ Has a set of variables it operates over, called its \textcolor{blue}{scope}.\\
+$\quad$ Example: The scope of $C(V1, V2, V4) =- {V1, V2, V4}$ \\
+$\quad$ Given an assignment to variables $C$ is True if the assignment satisfies the constraint; False if the assignment falsifies the constraint. \\
+(6) Solution to a CSP: An assignment of a value to all of the variables such that every constraint is satisfied.  \\
+$\quad$ A CSP is unsatisfiable if no solution exists.
+
+\subsection{Back Tracking Search}
+
+Searching through the space of partial assignments, rather than paths. Decide on a suitable value for one variable at a time. Order in which we assign the variables does not matter. If a constraint is falsified during the process of partial assignment, immediately reject the current partial assignment.
+
+(1) Root: Empty Assignment.  \\
+(2) Children of a node: all possible value assignments for a particular unassigned variable. \\
+(3) The tree stops descending if an assignment violates a constraint.  \\
+(4) Goal Node:
+$\quad$a. The assignment is complete $\quad$ b. No constraints is violated.
+
+\subsection{Back Tracking with Inference}
+
+(1) Every time we assign a value to a variable $V$ , check \textcolor{blue}{all constraints over $V$} and prune values from the current domain of the \textcolor{blue}{unassigned variables} of the constraints. \\
+$\quad$ Let $C$ be a constraint that includes V in its scope and $V_i$ be a variable (other than $V$) in the scope of $C$. \\
+$\quad$ All values in the current domain of Vi must have a \textcolor{blue}{supporting assignment}. If a value doesn’t have any supports, it must be pruned.  \\
+(2) A value $d$ in the current domain of $V_i$ has a \textcolor{blue}{supporting assignment} if there exist at least one value assignment for other variables of C such that C is satisfied under $V_i = d$ and that value assignment. \\
+(3) Removing a value from a variable domain may remove a support for other domain values. \\
+(4) Repeat the procedure until all remaining values have a support:\\
+$\quad$ Have a \textcolor{blue}{queue} of variables that need to be checked.\\
+$\quad$A variables is added (back) to the queue if its domain is changed.\\
+$\quad$The procedure stops when the queue is empty.\\
+\newpage
+
+this
+
+\end{multicols}
+
+
+
+
+
+\end{document}
